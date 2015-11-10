@@ -1,0 +1,30 @@
+server:
+  rootPath: /api/
+
+# Database settings.
+database:
+
+  # the name of your JDBC driver
+  driverClass: org.h2.Driver
+
+  url: jdbc:h2:./target/example
+
+
+logging:
+  loggers:
+    "org.skife.jdbi.v2": TRACE
+  appenders:
+    - type: console
+    - type: file
+      threshold: INFO
+      logFormat: "%-6level [%d{HH:mm:ss.SSS}] [%t] %logger{5} - %X{code} %msg %n"
+      currentLogFilename: ./target/application.log
+      archivedLogFilenamePattern: ./target/application-%d{yyyy-MM-dd}-%i.log.gz
+      archivedFileCount: 7
+      timeZone: UTC
+      maxFileSize: 10MB
+
+passwordManagement:
+  # This is set low, for testing only, to make authentication faster.
+  # 4 is the minimum the bcrypt library allows.
+  bcryptCost: 4

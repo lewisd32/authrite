@@ -1,0 +1,9 @@
+.settings
+.project
+.classpath
+target
+*.swp
+*~
+*.iml
+.idea
+/cookies

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="lewisd">
+        <createTable tableName="users">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="createdDate" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedDate" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletedDate" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="lastLoginDate" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="lastPasswordChangeDate" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="emailValidatedDate" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="displayName" type="varchar(32)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="passwordDigest" type="varchar(60)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="lewisd">
+        <createTable tableName="players">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="gameId" type="varchar(36)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="raceId" type="varchar(36)">
+                <constraints nullable="true" unique="true"/>
+            </column>
+            <column name="userId" type="varchar(36)">
+                <constraints nullable="true" unique="true"/>
+            </column>
+        </createTable>
+        <createIndex tableName="players" indexName="players_gameId">
+            <column name="gameId"/>
+        </createIndex>
+        <createIndex tableName="players" indexName="players_userId">
+            <column name="userId"/>
+        </createIndex>
+    </changeSet>
+    <changeSet id="3" author="lewisd">
+        <createTable tableName="userRoles">
+            <column name="id" type="varchar(36)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="userId" type="varchar(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(10)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdDate" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="deletedDate" type="timestamp">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+        <createIndex tableName="userRoles" indexName="userRoles_userId">
+            <column name="userId"/>
+        </createIndex>
+        <insert tableName="users">
+            <column name="id" value="46c668be-e2d2-4452-96a9-a8a0452ac922" />
+            <column name="createdDate" valueComputed="current_timestamp()" />
+            <column name="modifiedDate" valueComputed="current_timestamp()" />
+            <column name="email" value="admin@lewisd.com" />
+            <column name="displayName" value="Admin" />
+            <column name="passwordDigest" value="$2a$04$1Z4V.N9MZGscrTIi7OTSF.uQXOYalFc8Zs6gg9HZBNs4tIxRRdbRK" />
+            <!-- password is "password" -->
+        </insert>
+        <insert tableName="userRoles">
+            <column name="id" value="69e9ef78-4108-4340-b51d-824717eb9cfb"/>
+            <column name="userId" value="46c668be-e2d2-4452-96a9-a8a0452ac922"/>
+            <column name="role" value="PLAYER"/>
+            <column name="createdDate" valueComputed="current_timestamp()"/>
+        </insert>
+        <insert tableName="userRoles">
+            <column name="id" value="e4266568-d0dc-49f5-bc42-9535fbb689f9"/>
+            <column name="userId" value="46c668be-e2d2-4452-96a9-a8a0452ac922"/>
+            <column name="role" value="ADMIN"/>
+            <column name="createdDate" valueComputed="current_timestamp()"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
