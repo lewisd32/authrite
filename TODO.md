@@ -6,3 +6,5 @@ FIX: disallow changing password to the existing password.
 Add password reset functionality
 
 Add email verification
+
+Log loud warnings if running with secret that's the development default.
