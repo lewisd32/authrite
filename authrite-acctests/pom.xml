@@ -47,6 +47,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-database</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-core</artifactId>
       <scope>compile</scope>
