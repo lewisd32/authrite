@@ -45,14 +45,51 @@ put together a sample of how to do all those bits and pieces "right".
 - Makes it easy to avoid the OWASP Top 10
 
 
-## Features still to implement:
+## Features to (potentially) implement:
 
-- Switching to allowing users to use either a username or an email for login
-  - should be able to eliminate the email enumeration attacks via :
-    - creating an account with an existing user's email
-    - change email to another existing user's email
+- Randomizing login check time to make timing attacks more difficult
+  - ensure all the following take the same amount of time:
+    - failing to find a user in the database
+    - password being incorrect
+- Lock out accounts after too many login attempts
+  - able to be unlocked via email to prevent it being a DOS
 - Support for HTTPS
   - Primarily code for redirecting insecure connections to HTTPS
 - Email verification
 - Password reset
 - Appropriate DB transaction boundaries
+
+### Switching to username or email for login
+
+I would like to attempt to prevent disclosure of what email addresses are are
+registered.  For some services, simple knowing that someone is signed up for
+them could put people in a bad position. Even though it could have been someone
+else that signed them up, using their email address, in many situations this may
+not be considered until too late. eg. Someone checks to see if their partner's
+email address is in use on a Ashley Madison like site.  When they find that it's
+in use, telling them that someone else may have signed up with their parter's
+email address, to make it look bad, may not help matters much.
+
+The primary avenues of this disclosure are during signup, and when changing
+your account's email address.  Currently, in both those cases, we check if
+the email address is in use, and say "email address already in use" if it is.
+
+To fix this for the signup case, we would need to allow multiple accounts with
+the same email address.  Same for when changing email address.
+
+This introduces challenges during login.  I recognize that people don't always
+like having to remember screen names between multiple websites, to use it for
+logging in.  Allowing people to login with an email address or screen name
+would be useful.
+
+To allow logging in with an email address, the system would have to try the
+password against *all* accounts with that email address.  This has the potential
+for attackers to use timing to determine whether an email address is registered
+or not.
+
+Disallowing logging in with an email address if there are multiple accounts
+registered to that address presents a different problem, however.  If, when a
+user tries to login, we return the generic login error, even when their credentials
+may have been correct, this would be very confusing for the user.  However,
+returning any other error message again allows for disclosure of whether that
+email address is registered.
