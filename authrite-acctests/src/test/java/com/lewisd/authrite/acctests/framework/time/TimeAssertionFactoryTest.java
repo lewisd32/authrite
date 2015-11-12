@@ -1,8 +1,6 @@
-package com.lewisd.authrite.acctests.framework;
+package com.lewisd.authrite.acctests.framework.time;
 
 import com.lewisd.authrite.acctests.framework.context.DateStore;
-import com.lewisd.authrite.acctests.framework.time.TimeAssertion;
-import com.lewisd.authrite.acctests.framework.time.TimeAssertionFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +24,7 @@ public class TimeAssertionFactoryTest {
 
     @Test
     public void assertBetweenTwoAliases() {
-        final TimeAssertion timeAssertion = new TimeAssertionFactory(dates, "field").parse( "between firstDate and secondDate");
+        final TimeAssertion timeAssertion = new TimeAssertionFactory(dates, "field").parse("between firstDate and secondDate");
         assertThat(timeAssertion.getBeginDate(), equalTo(FIRST_DATE));
         assertThat(timeAssertion.getEndDate(), equalTo(SECOND_DATE));
         assertThat(timeAssertion.isExpectingNull(), equalTo(false));
@@ -95,8 +93,6 @@ public class TimeAssertionFactoryTest {
         assertThat(timeAssertion.getEndDate(), equalTo(new Date(FIRST_DATE.getTime() + 60000)));
         assertThat(timeAssertion.isExpectingNull(), equalTo(false));
     }
-
-
 
 
 }
