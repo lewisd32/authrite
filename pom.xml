@@ -2,11 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.lewisd</groupId>
-    <artifactId>parent</artifactId>
-    <version>1.1-SNAPSHOT</version>
-  </parent>
 
   <groupId>com.lewisd.authrite</groupId>
   <artifactId>authrite</artifactId>
@@ -16,6 +11,11 @@
   <name>authrite</name>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <checkstyle.goal>check</checkstyle.goal>
+    <authrite.code-checking-rules.version>1.1-SNAPSHOT</authrite.code-checking-rules.version>
+    <checkstyle.ruleset>rulesets/checkstyle-authrite-rules.xml</checkstyle.ruleset>
+
     <java.version>1.8</java.version>
     <dropwizard.version>0.9.0</dropwizard.version>
     <dropwizard-modules.version>0.9.0-1</dropwizard-modules.version>
@@ -24,6 +24,7 @@
   <modules>
     <module>authrite-service</module>
     <module>authrite-acctests</module>
+    <module>authrite-code-checking-rules</module>
   </modules>
 
   <dependencyManagement>
@@ -162,6 +163,45 @@
             <showDeprecation>true</showDeprecation>
             <showWarnings>true</showWarnings>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.17</version>
+          <configuration>
+            <violationSeverity>warning</violationSeverity>
+            <configLocation>${checkstyle.ruleset}</configLocation>
+            <logViolationsToConsole>true</logViolationsToConsole>
+            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>${checkstyle.goal}</goal>
+              </goals>
+              <phase>validate</phase>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>com.lewisd.authrite</groupId>
+              <artifactId>authrite-code-checking-rules</artifactId>
+              <version>${authrite.code-checking-rules.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>3.0.2</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>check</goal>
+              </goals>
+              <phase>validate</phase>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>

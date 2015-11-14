@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+        "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+<module name="Checker">
+    <property name="severity" value="warning"/>
+    <module name="FileTabCharacter"/>
+
+    <module name="SuppressionCommentFilter">
+        <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
+        <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
+        <property name="checkFormat" value="$1"/>
+    </module>
+
+    <!-- Duplicate Code -->
+    <module name="TreeWalker">
+        <!-- Required for SuppressionCommentFilter -->
+        <module name="FileContentsHolder"/>
+        <property name="tabWidth" value="4"/>
+
+        <!-- Standard Checks -->
+
+        <!-- Annotations -->
+        <module name="AnnotationUseStyle"/>
+        <module name="MissingDeprecated"/>
+        <module name="MissingOverride"/>
+        <module name="PackageAnnotation"/>
+        <module name="SuppressWarnings"/>
+
+        <!-- Block Checks -->
+        <module name="EmptyBlock">
+            <property name="tokens"
+                      value="LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_IF,LITERAL_FOR,LITERAL_TRY,LITERAL_WHILE,INSTANCE_INIT,STATIC_INIT"/>
+            <property name="option" value="text"/>
+        </module>
+        <module name="LeftCurly"/>
+        <module name="NeedBraces"/>
+        <module name="RightCurly"/>
+        <module name="AvoidNestedBlocks"/>
+
+        <!-- Class Design -->
+        <module name="VisibilityModifier"/>
+        <module name="FinalClass"/>
+        <module name="InterfaceIsType">
+            <property name="severity" value="ignore"/>
+        </module>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="DesignForExtension">
+            <property name="severity" value="ignore"/>
+        </module>
+        <module name="MutableException"/>
+        <module name="ThrowsCount"/>
+        <module name="InnerTypeLast"/>
+
+        <!-- Coding -->
+        <module name="ArrayTrailingComma"/>
+        <module name="CovariantEquals"/>
+        <module name="EmptyStatement"/>
+        <module name="EqualsAvoidNull"/>
+        <module name="EqualsHashCode"/>
+        <module name="FinalLocalVariable">
+            <property name="tokens" value="PARAMETER_DEF,VARIABLE_DEF"/>
+        </module>
+        <module name="HiddenField">
+            <property name="ignoreConstructorParameter" value="true"/>
+            <property name="ignoreSetter" value="true"/>
+            <property name="setterCanReturnItsClass" value="true"/>
+        </module>
+        <module name="InnerAssignment"/>
+        <!-- This should probably be turned on, but it's hell for the tests.
+        <module name="MagicNumber">
+          <property name="ignoreNumbers" value="0, 1"/>
+        </module>
+        -->
+        <module name="MissingSwitchDefault"/>
+        <module name="ModifiedControlVariable"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+        <module name="NestedForDepth">
+            <property name="max" value="3"/>
+        </module>
+        <module name="NestedIfDepth">
+            <property name="max" value="2"/>
+        </module>
+        <module name="NestedTryDepth"/>
+        <module name="NoClone"/>
+        <module name="NoFinalizer"/>
+        <module name="IllegalCatch"/>
+        <module name="IllegalThrows"/>
+        <module name="PackageDeclaration"/>
+        <module name="ReturnCount">
+            <property name="max" value="3" />
+        </module>
+        <module name="DeclarationOrder"/>
+        <module name="ParameterAssignment"/>
+        <module name="DefaultComesLast"/>
+        <module name="FallThrough"/>
+        <module name="MultipleStringLiterals">
+            <property name="ignoreStringsRegexp" value='^(("")|("."))$'/>
+        </module>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="OneStatementPerLine"/>
+
+        <!-- Headers -->
+
+        <!-- Imports -->
+        <module name="AvoidStarImport">
+            <property name="allowStaticMemberImports" value="true"/>
+        </module>
+        <!--<module name="AvoidStaticImport">-->
+            <!--<property name="excludes" value="org.junit.Assert.*"/>-->
+        <!--</module>-->
+        <module name="IllegalImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Javadoc Comments -->
+
+        <!-- Metrics -->
+        <module name="BooleanExpressionComplexity"/>
+        <module name="ClassDataAbstractionCoupling">
+            <property name="max" value="7"/>
+        </module>
+        <module name="ClassFanOutComplexity">
+            <property name="max" value="20"/>
+        </module>
+        <module name="CyclomaticComplexity">
+            <property name="max" value="10"/>
+        </module>
+        <module name="NPathComplexity">
+            <property name="max" value="200"/>
+        </module>
+        <module name="JavaNCSS">
+            <property name="methodMaximum" value="50"/>
+            <property name="classMaximum" value="1500"/>
+            <property name="fileMaximum" value="2000"/>
+        </module>
+
+        <!-- Miscellaneous -->
+        <module name="TodoComment">
+            <property name="format" value="FIXME"/>
+        </module>
+        <module name="UpperEll"/>
+        <module name="FinalParameters"/>
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="0"/>
+        </module>
+        <module name="OuterTypeFilename"/>
+
+        <!-- Modifiers -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Naming Conventions -->
+        <module name="ClassTypeParameterName">
+            <property name="format" value="[A-Z]+"/>
+        </module>
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="MethodTypeParameterName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+        <module name="TypeName"/>
+
+        <!-- Regexp -->
+
+        <!-- Size Violations -->
+        <module name="LineLength">
+            <property name="max" value="160"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+
+        <!-- Whitespace -->
+        <module name="GenericWhitespace"/>
+        <module name="NoWhitespaceAfter">
+            <property name="tokens" value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS"/>
+        </module>
+        <module name="NoWhitespaceBefore"/>
+
+
+        <!-- Non-Standard Checks -->
+        <module name="ArrayTypeStyle"/>
+        <module name="EmptyForIteratorPad"/>
+        <module name="MethodLength"/>
+        <module name="MethodParamPad"/>
+        <module name="OperatorWrap"/>
+        <module name="ParenPad"/>
+        <module name="TypecastParenPad"/>
+        <module name="WhitespaceAfter"/>
+        <module name="WhitespaceAround">
+            <property name="tokens"
+                      value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LCURLY,LE,LITERAL_ASSERT,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,RCURLY,SL,SL_ASSIGN,SLIST,SR,SR_ASSIGN,STAR,STAR_ASSIGN,TYPE_EXTENSION_AND"/>
+        </module>
+
+    </module>
+</module>

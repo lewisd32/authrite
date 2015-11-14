@@ -8,7 +8,6 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.lewisd.authrite</groupId>
   <artifactId>authrite-service</artifactId>
   <version>1.0-SNAPSHOT</version>
 
