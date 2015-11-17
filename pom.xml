@@ -42,6 +42,13 @@
       </releases>
       <url>https://dl.bintray.com/unacceptable/releases/</url>
     </repository>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
   </repositories>
 
   <dependencyManagement>
