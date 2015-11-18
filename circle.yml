@@ -5,4 +5,8 @@ machine:
 
 dependencies:
     override:
-        - mvn install -DskipTests
+        - mvn verify -DskipTests
+
+test:
+    override:
+        - mvn verify
