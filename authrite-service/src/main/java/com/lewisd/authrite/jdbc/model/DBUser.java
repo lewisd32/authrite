@@ -3,6 +3,7 @@ package com.lewisd.authrite.jdbc.model;
 import com.lewisd.authrite.auth.PasswordDigest;
 import com.lewisd.authrite.auth.Roles;
 
+import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,24 +24,24 @@ public class DBUser {
 
     // CHECKSTYLE.OFF: ParameterNumber
     public DBUser(final UUID id,
-                  final Date createdDate,
-                  final Date modifiedDate,
-                  final Date deletedDate,
-                  final Date lastLoginDate,
-                  final Date lastPasswordChangeDate,
-                  final Date emailValidatedDate,
+                  @Nullable final Date createdDate,
+                  @Nullable final Date modifiedDate,
+                  @Nullable final Date deletedDate,
+                  @Nullable final Date lastLoginDate,
+                  @Nullable final Date lastPasswordChangeDate,
+                  @Nullable final Date emailValidatedDate,
                   final String email,
                   final String displayName,
                   final PasswordDigest passwordDigest,
                   final Set<Roles> roles) {
         // CHECKSTYLE.ON: ParameterNumber
         this.id = id;
-        this.createdDate = createdDate;
-        this.modifiedDate = modifiedDate;
-        this.deletedDate = deletedDate;
-        this.lastLoginDate = lastLoginDate;
-        this.lastPasswordChangeDate = lastPasswordChangeDate;
-        this.emailValidatedDate = emailValidatedDate;
+        this.createdDate = clone(createdDate);
+        this.modifiedDate = clone(modifiedDate);
+        this.deletedDate = clone(deletedDate);
+        this.lastLoginDate = clone(lastLoginDate);
+        this.lastPasswordChangeDate = clone(lastPasswordChangeDate);
+        this.emailValidatedDate = clone(emailValidatedDate);
         this.email = email;
         this.displayName = displayName;
         this.passwordDigest = passwordDigest;
@@ -56,51 +57,51 @@ public class DBUser {
     }
 
     public Date getCreatedDate() {
-        return createdDate;
+        return clone(createdDate);
     }
 
     public void setCreatedDate(final Date createdDate) {
-        this.createdDate = createdDate;
+        this.createdDate = clone(createdDate);
     }
 
     public Date getModifiedDate() {
-        return modifiedDate;
+        return clone(modifiedDate);
     }
 
     public void setModifiedDate(final Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
+        this.modifiedDate = clone(modifiedDate);
     }
 
     public Date getDeletedDate() {
-        return deletedDate;
+        return clone(deletedDate);
     }
 
     public void setDeletedDate(final Date deletedDate) {
-        this.deletedDate = deletedDate;
+        this.deletedDate = clone(deletedDate);
     }
 
     public Date getLastLoginDate() {
-        return lastLoginDate;
+        return clone(lastLoginDate);
     }
 
     public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
+        this.lastLoginDate = clone(lastLoginDate);
     }
 
     public Date getLastPasswordChangeDate() {
-        return lastPasswordChangeDate;
+        return clone(lastPasswordChangeDate);
     }
 
     public void setLastPasswordChangeDate(final Date lastPasswordChangeDate) {
-        this.lastPasswordChangeDate = lastPasswordChangeDate;
+        this.lastPasswordChangeDate = clone(lastPasswordChangeDate);
     }
 
     public Date getEmailValidatedDate() {
-        return emailValidatedDate;
+        return clone(emailValidatedDate);
     }
 
     public void setEmailValidatedDate(final Date emailValidatedDate) {
-        this.emailValidatedDate = emailValidatedDate;
+        this.emailValidatedDate = clone(emailValidatedDate);
     }
 
     public String getEmail() {
@@ -134,4 +135,12 @@ public class DBUser {
     public void setRoles(final Set<Roles> roles) {
         this.roles = roles;
     }
+
+    private static Date clone(final Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new Date(date.getTime());
+    }
+
 }
