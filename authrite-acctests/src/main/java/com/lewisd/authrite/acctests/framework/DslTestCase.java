@@ -69,13 +69,10 @@ public class DslTestCase {
                 new RequiredParam("duration")
         );
 
-        final ParseResult<Duration> result = new DurationParser().parse(params.value("duration"));
-        if (!result.getRemainingText().isEmpty()) {
-            throw new IllegalArgumentException("Trailing text in duration: " + result.getRemainingText());
-        }
+        final Duration duration = new DurationParser().parse(params.value("duration"));
 
         try {
-            Thread.sleep(result.getParsedObject().toMillis());
+            Thread.sleep(duration.toMillis());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

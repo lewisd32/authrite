@@ -245,9 +245,9 @@ public class PublicApi extends Dsl<PublicApiDriver> {
                 expiry = AliasStore.ABSENT;
             } else {
                 String description = params.value("expiry");
-                final ParseResult<Date> result = new TimeParser(testContext.dates, "expiry").parse(description);
+                final Date expiryDate = new TimeParser(testContext.dates, "expiry").parse(description);
 
-                expiry = Long.toString(TimeUnit.MILLISECONDS.toSeconds(result.getParsedObject().getTime()));
+                expiry = Long.toString(TimeUnit.MILLISECONDS.toSeconds(expiryDate.getTime()));
             }
         } else {
             expiry = null;

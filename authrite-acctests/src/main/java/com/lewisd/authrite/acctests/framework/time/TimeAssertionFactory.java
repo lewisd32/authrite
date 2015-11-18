@@ -1,12 +1,9 @@
 package com.lewisd.authrite.acctests.framework.time;
 
 import com.lewisd.authrite.acctests.framework.context.DateStore;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
-
-import static com.lewisd.authrite.acctests.framework.time.ParserTool.getFirstWord;
-import static com.lewisd.authrite.acctests.framework.time.ParserTool.removeFirstWord;
+import java.util.Deque;
 
 public class TimeAssertionFactory {
 
@@ -19,37 +16,36 @@ public class TimeAssertionFactory {
     }
 
     public TimeAssertion parse(final String description) {
-        final String[] parts = StringUtils.split(description, ' ');
-        if (parts.length == 0) {
+        final Deque<String> tokenList = Tokenizer.parse(description);
+        if (tokenList.isEmpty()) {
             throw new IllegalArgumentException(fieldName + " can't be empty");
         }
 
-        if (parts[0].equalsIgnoreCase("is")) {
-            if (parts[1].equalsIgnoreCase("never")) {
+        String firstToken = tokenList.removeFirst();
+        if (firstToken.equalsIgnoreCase("is")) {
+            String secondToken = tokenList.removeFirst();
+            if (secondToken.equalsIgnoreCase("never")) {
                 return new TimeAssertion(fieldName, null, null, true);
             }
             throw new IllegalArgumentException("Expected format: is never");
-        } else if (parts[0].equalsIgnoreCase("between")) {
+        } else if (firstToken.equalsIgnoreCase("between")) {
 
-            ParseResult<Date> firstDateResult = timeParser.parse(removeFirstWord(parts));
-            String remainingText = firstDateResult.getRemainingText();
-            String conjunction = getFirstWord(remainingText);
-            remainingText = removeFirstWord(remainingText);
+            ParseResult<Date> firstDateResult = timeParser.parsePartial(tokenList);
+            String conjunction = tokenList.removeFirst();
             if (!conjunction.equalsIgnoreCase("and")) {
                 throw new IllegalArgumentException("Expected format: between date1 and date2");
             }
-            ParseResult<Date> secondDateResult = timeParser.parse(remainingText);
 
             final Date date1 = firstDateResult.getParsedObject();
-            final Date date2 = secondDateResult.getParsedObject();
+            final Date date2 = timeParser.parse(tokenList);
 
             return new TimeAssertion(fieldName, date1, date2, false);
-        } else if (parts[0].equalsIgnoreCase("after")) {
-            ParseResult<Date> result = timeParser.parse(removeFirstWord(parts));
-            return new TimeAssertion(fieldName, result.getParsedObject(), null, false);
-        } else if (parts[0].equalsIgnoreCase("before")) {
-            ParseResult<Date> result = timeParser.parse(removeFirstWord(parts));
-            return new TimeAssertion(fieldName, null, result.getParsedObject(), false);
+        } else if (firstToken.equalsIgnoreCase("after")) {
+            Date date = timeParser.parse(tokenList);
+            return new TimeAssertion(fieldName, date, null, false);
+        } else if (firstToken.equalsIgnoreCase("before")) {
+            Date date = timeParser.parse(tokenList);
+            return new TimeAssertion(fieldName, null, date, false);
         }
         throw new IllegalArgumentException("Unknown date expectation format: " + description);
     }

@@ -1,12 +1,10 @@
 package com.lewisd.authrite.acctests.framework.time;
 
 import com.lewisd.authrite.acctests.framework.context.DateStore;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Duration;
 import java.util.Date;
-
-import static com.lewisd.authrite.acctests.framework.time.ParserTool.removeFirstWord;
+import java.util.Deque;
 
 public class TimeParser {
 
@@ -18,16 +16,30 @@ public class TimeParser {
         this.fieldName = fieldName;
     }
 
-    public ParseResult<Date> parse(String text) {
-        if (Character.isDigit(text.charAt(0))) {
-            final ParseResult<Duration> result = new DurationParser().parse(text);
-            String remainingText = result.getRemainingText();
+    public Date parse(final String description) {
+        return parse(Tokenizer.parse(description));
+    }
 
-            String preposition = ParserTool.getFirstWord(remainingText);
-            remainingText = ParserTool.removeFirstWord(remainingText);
+    public Date parse(final Deque<String> tokenList) {
+        final ParseResult<Date> result = parsePartial(tokenList);
+        if (!result.getRemainingTokens().isEmpty()) {
+            throw new IllegalArgumentException("Trailing tokens found:" + result.getRemainingTokens());
+        }
+        return result.getParsedObject();
+    }
 
-            String alias = ParserTool.getFirstWord(remainingText);
-            remainingText = ParserTool.removeFirstWord(remainingText);
+    ParseResult<Date> parsePartial(final String description) {
+        return parsePartial(Tokenizer.parse(description));
+    }
+
+    ParseResult<Date> parsePartial(final Deque<String> tokenList) {
+        String firstToken = tokenList.getFirst();
+        if (Character.isDigit(firstToken.charAt(0))) {
+            final ParseResult<Duration> result = new DurationParser().parsePartial(tokenList);
+
+            String preposition = tokenList.removeFirst();
+
+            String alias = tokenList.removeFirst();
 
             Date date = dates.getTime(alias);
             if (date == null) {
@@ -44,13 +56,15 @@ public class TimeParser {
             }
 
             final Date adjustedDate = new Date(date.getTime() + result.getParsedObject().toMillis() * durationSign);
-            return new ParseResult<>(adjustedDate, remainingText);
+            return new ParseResult<>(adjustedDate, tokenList);
         }
 
-        final String[] parts = StringUtils.split(text, ' ');
-        String alias = parts[0];
+        String alias = tokenList.removeFirst();
         Date date = dates.getTime(alias);
-        return new ParseResult<>(date, ParserTool.removeFirstWord(parts));
+        if (date == null) {
+            throw new IllegalArgumentException("No date named '" + alias + "' found for " + fieldName);
+        }
+        return new ParseResult<>(date, tokenList);
     }
 
 }

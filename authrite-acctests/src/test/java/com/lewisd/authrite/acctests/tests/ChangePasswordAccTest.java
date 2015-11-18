@@ -19,7 +19,7 @@ public class ChangePasswordAccTest extends DslTestCase {
         publicApi.changePassword("test@test.com", "oldPassword: password123", "newPassword: password456");
         recordTime("afterPasswordChanged");
 
-        adminApi.assertUser("test@test.com", "createdDate: between testStart and before beforePasswordChanged");
+        adminApi.assertUser("test@test.com", "createdDate: between testStart and beforePasswordChanged");
         adminApi.assertUser("test@test.com", "modifiedDate: between beforePasswordChanged and afterPasswordChanged");
         adminApi.assertUser("test@test.com", "deletedDate: is never");
         adminApi.assertUser("test@test.com", "lastLoginDate: between testStart and beforePasswordChanged");

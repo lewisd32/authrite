@@ -1,12 +1,10 @@
 package com.lewisd.authrite.acctests.framework.time;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import java.time.Duration;
-import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -25,58 +23,70 @@ public class DurationParser {
         TIME_UNIT_NAMES.put(TimeUnit.MILLISECONDS, Sets.newHashSet("milli", "millis", "milliseconds", "ms"));
     }
 
-    public ParseResult<Duration> parse(final String description) {
-        final String[] parts = StringUtils.split(description, ' ');
-        return parse(parts);
+    public Duration parse(final String description) {
+        return parse(Tokenizer.parse(description));
     }
 
-    public ParseResult<Duration> parse(final String[] parts) {
-        if (parts.length < 2) {
+    public Duration parse(final Deque<String> tokenList) {
+        final ParseResult<Duration> result = parsePartial(tokenList);
+        if (!result.getRemainingTokens().isEmpty()) {
+            throw new IllegalArgumentException("Trailing tokens found: " + result.getRemainingTokens());
+        }
+        return result.getParsedObject();
+    }
+
+    ParseResult<Duration> parsePartial(final String description) {
+        return parsePartial(Tokenizer.parse(description));
+    }
+
+    ParseResult<Duration> parsePartial(final Deque<String> tokenList) {
+        if (tokenList.size() < 2) {
             throw new IllegalArgumentException("Description must contain at least two components (was '" +
-                                                       Joiner.on(' ').join(parts) + "')");
+                                                       tokenList + "')");
         }
 
         long duration = 0;
-        int partsConsumed = 0;
 
         do {
-            final Optional<Long> maybeDuration = parseTimeNumeric(parts[partsConsumed], parts[partsConsumed + 1]);
+            final Optional<Long> maybeDuration = parseTimeNumeric(tokenList);
             // return early if we reach something unparseable
             if (!maybeDuration.isPresent()) {
-                return new ParseResult<>(Duration.ofMillis(duration), getRemaining(parts, partsConsumed));
+                return new ParseResult<>(Duration.ofMillis(duration), tokenList);
             }
             duration += maybeDuration.get();
-            partsConsumed += 2;
-        } while (partsConsumed+1 < parts.length);
+        } while (!tokenList.isEmpty());
 
-        return new ParseResult<>(Duration.ofMillis(duration), getRemaining(parts, partsConsumed));
+        return new ParseResult<>(Duration.ofMillis(duration), tokenList);
     }
 
-    private static Optional<Long> parseTimeNumeric(final String number, final String unit) {
+    private static Optional<Long> parseTimeNumeric(Deque<String> tokenList) {
         final int numericComponent;
         try {
-            numericComponent = Integer.parseInt(number);
+            numericComponent = Integer.parseInt(tokenList.getFirst());
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
+        tokenList.removeFirst();
+
+        final String timeUnitToken = tokenList.getFirst();
 
         final Optional<TimeUnit> maybeTimeUnit = TIME_UNIT_NAMES
                 .entrySet()
                 .stream()
-                .filter(entry -> entry.getValue().contains(unit.toLowerCase()))
+                .filter(entry -> {
+                    return entry.getValue().contains(timeUnitToken.toLowerCase());
+                })
                 .map(Map.Entry::getKey)
                 .findFirst();
         final Optional<Long> maybeMillis = maybeTimeUnit.map(timeUnit -> timeUnit.toMillis(numericComponent));
 
 
         if (maybeMillis.isPresent()) {
+            tokenList.removeFirst();
             return maybeMillis;
         } else {
-            throw new IllegalArgumentException("Unknown time unit: " + unit);
+            throw new IllegalArgumentException("Unknown time unit: " + timeUnitToken);
         }
     }
 
-    private static String getRemaining(final String[] parts, final int partsConsumed) {
-        return Joiner.on(' ').join(Arrays.copyOfRange(parts, partsConsumed, parts.length));
-    }
 }
