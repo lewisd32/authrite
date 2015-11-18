@@ -13,6 +13,10 @@
   <artifactId>authrite-acctests</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <properties>
+    <checkstyle.ruleset>rulesets/checkstyle-authrite-acctest-rules.xml</checkstyle.ruleset>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.lewisd.authrite</groupId>
@@ -47,6 +51,16 @@
     </dependency>
     <dependency>
       <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-dsl</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-lazy</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.unacceptable</groupId>
       <artifactId>unacceptable-database</artifactId>
       <scope>compile</scope>
     </dependency>
@@ -64,6 +78,13 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <includeTestSourceDirectory>false</includeTestSourceDirectory>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

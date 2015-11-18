@@ -2,19 +2,17 @@ package com.lewisd.authrite.acctests.framework.driver;
 
 import com.lewisd.authrite.AuthriteServiceApplication;
 import com.lewisd.authrite.AuthriteServiceConfiguration;
-import com.lewisd.authrite.acctests.framework.Lazily;
 import com.lewisd.authrite.acctests.framework.database.H2DatabaseContext;
 import io.dropwizard.testing.ConfigOverride;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.github.unacceptable.database.DatabaseContext;
+import io.github.unacceptable.lazy.Lazily;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 public class SystemDriver {
-    private static final int SELENIUM_WAIT_SECONDS = Integer.getInteger("selenium.timeout", 2);
-
     private static final ConfigOverride LOG_THRESHOLD = ConfigOverride.config("logging.level", System.getProperty("app.logging.threshold", "INFO"));
     private static final String ACCTEST_BASEURI_PROPERTY = "acctest.baseuri";
 
@@ -31,14 +29,18 @@ public class SystemDriver {
     private String baseUrl = null;
 
     public String baseUrl() {
-        return baseUrl = Lazily.create(baseUrl, () -> {
-            String propertyValue = System.getProperty(ACCTEST_BASEURI_PROPERTY);
-            if (propertyValue != null) {
-                return propertyValue;
-            } else {
-                return String.format("http://localhost:%d/", appRule.getLocalPort());
-            }
-        });
+        //CHECKSTYLE.OFF: InnerAssignment
+        return baseUrl = Lazily.create(baseUrl, this::buildBaseUrl);
+        //CHECKSTYLE.ON: InnerAssignment
+    }
+
+    private String buildBaseUrl() {
+        final String propertyValue = System.getProperty(ACCTEST_BASEURI_PROPERTY);
+        if (propertyValue != null) {
+            return propertyValue;
+        } else {
+            return String.format("http://localhost:%d/", appRule.getLocalPort());
+        }
     }
 
     public TestRule rules() {
@@ -57,7 +59,7 @@ public class SystemDriver {
     }
 
     public PublicApiDriver publicApiDriver() {
-        return new PublicApiDriver(this, baseUrl());
+        return new PublicApiDriver();
     }
 
 }

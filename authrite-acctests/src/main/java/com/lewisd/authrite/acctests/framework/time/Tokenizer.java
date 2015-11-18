@@ -4,13 +4,13 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-public class Tokenizer {
+public final class Tokenizer {
 
     private Tokenizer() {
         // singleton
     }
 
-    public static Deque<String> parse(String text) {
+    public static Deque<String> parse(final String text) {
         final StringTokenizer tokenizer = new StringTokenizer(text, " ", false);
 
         // TODO: I feel like there must be a better way to do this, but I can't figure it out

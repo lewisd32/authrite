@@ -17,19 +17,19 @@ public class MigrateDatabaseRule implements TestRule {
     private final String username;
     private final String password;
 
-    public MigrateDatabaseRule(String databaseUrl, String username, String password) {
+    public MigrateDatabaseRule(final String databaseUrl, final String username, final String password) {
         this.databaseUrl = databaseUrl;
         this.username = username;
         this.password = password;
     }
 
     @Override
-    public Statement apply(Statement base, Description description) {
+    public Statement apply(final Statement base, final Description description) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
                 try (Connection c = connect()) {
-                    Liquibase liquibase = makeLiquibase(c);
+                    final Liquibase liquibase = makeLiquibase(c);
                     migrate(liquibase);
                 }
                 base.evaluate();
@@ -41,16 +41,16 @@ public class MigrateDatabaseRule implements TestRule {
         return DriverManager.getConnection(databaseUrl, username, password);
     }
 
-    private void migrate(Liquibase liquibase) throws LiquibaseException {
-        String contexts = null;
+    private void migrate(final Liquibase liquibase) throws LiquibaseException {
+        final String contexts = null;
         liquibase.update(contexts);
     }
 
-    private Liquibase makeLiquibase(Connection connection) throws LiquibaseException {
-        String changeLogFile = "migrations.xml";
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoaderResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor(classLoader);
-        JdbcConnection jdbcConnection = new JdbcConnection(connection);
+    private Liquibase makeLiquibase(final Connection connection) throws LiquibaseException {
+        final String changeLogFile = "migrations.xml";
+        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoaderResourceAccessor resourceAccessor = new ClassLoaderResourceAccessor(classLoader);
+        final JdbcConnection jdbcConnection = new JdbcConnection(connection);
 
         return new Liquibase(changeLogFile, resourceAccessor, jdbcConnection);
     }

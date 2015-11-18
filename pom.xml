@@ -155,6 +155,18 @@
       </dependency>
       <dependency>
         <groupId>io.github.unacceptable</groupId>
+        <artifactId>unacceptable-dsl</artifactId>
+        <version>[0.0.1,)</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.github.unacceptable</groupId>
+        <artifactId>unacceptable-lazy</artifactId>
+        <version>[0.0.1,)</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.github.unacceptable</groupId>
         <artifactId>unacceptable-database</artifactId>
         <version>[0.0.1,)</version>
         <scope>test</scope>

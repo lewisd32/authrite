@@ -1,10 +1,9 @@
 package com.lewisd.authrite.acctests.framework;
 
 import com.jayway.restassured.RestAssured;
-import com.lewisd.authrite.acctests.framework.driver.DslTools;
-import com.lewisd.authrite.acctests.framework.time.ParseResult;
-import com.lewisd.authrite.acctests.framework.driver.SystemDriver;
 import com.lewisd.authrite.acctests.framework.context.TestContext;
+import com.lewisd.authrite.acctests.framework.driver.DslTools;
+import com.lewisd.authrite.acctests.framework.driver.SystemDriver;
 import com.lewisd.authrite.acctests.framework.time.DurationParser;
 import com.lmax.simpledsl.DslParams;
 import com.lmax.simpledsl.OptionalParam;
@@ -18,9 +17,10 @@ import java.time.Duration;
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 
+//CHECKSTYLE.OFF: VisibilityModifier
+//CHECKSTYLE.OFF: ClassDataAbstractionCoupling
+//CHECKSTYLE.OFF: DeclarationOrder
 public class DslTestCase {
-
-    private static String serverUri = "http://localhost:8080";
 
     private final SystemDriver systemDriver = new SystemDriver();
     private final TestContext testContext = new TestContext();
@@ -46,13 +46,13 @@ public class DslTestCase {
     }
 
     protected void recordTime(final String... args) {
-        DslParams params = new DslParams(
+        final DslParams params = new DslParams(
                 args,
                 new RequiredParam("alias"),
                 new OptionalParam("padding").setDefault("10 millis")
         );
-        String alias = params.value("alias");
-        String padding = params.value("padding");
+        final String alias = params.value("alias");
+        final String padding = params.value("padding");
 
         // Short sleeps to make sure we don't record two times that are the same
         // by calling this twice too closely.
@@ -64,7 +64,7 @@ public class DslTestCase {
     }
 
     protected void sleep(final String... args) {
-        DslParams params = new DslParams(
+        final DslParams params = new DslParams(
                 args,
                 new RequiredParam("duration")
         );
@@ -73,7 +73,7 @@ public class DslTestCase {
 
         try {
             Thread.sleep(duration.toMillis());
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

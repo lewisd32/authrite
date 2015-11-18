@@ -27,27 +27,13 @@ import static org.junit.Assert.assertNotNull;
 public class PublicApiDriver {
     private static final Logger LOGGER = LoggerFactory.getLogger(PublicApiDriver.class);
 
-    private static final String VERSION_HEADER = "X-Version";
-
-    private final SystemDriver systemDriver;
-    private final String rootUrl;
-
     private String loggedInEmail;
     private String jwtToken;
     private Cookie jtwCookie;
 
-    public PublicApiDriver(SystemDriver systemDriver, String rootUrl) {
-        this.systemDriver = systemDriver;
-        this.rootUrl = rootUrl;
-    }
-
-    public Response createUser(String email, String displayName, String password, int expectedStatusCode) {
-        return createUser(email, displayName, password, expectedStatusCode, null);
-    }
-
-    public Response createUser(String email, String displayName, String password, int expectedStatusCode,
-                               String id) {
-        Map<String, Object> user = new HashMap<>();
+    public Response createUser(final String email, final String displayName, final String password, final int expectedStatusCode,
+                               final String id) {
+        final Map<String, Object> user = new HashMap<>();
         if (email != null) {
             user.put("email", email);
         }
@@ -59,14 +45,14 @@ public class PublicApiDriver {
             user.put("id", id);
         }
 
-        Map<String, Object> requestBody = new HashMap<>();
+        final Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("user", user);
         requestBody.put("password", password);
 
         final String requestBodyJson = createJsonRequestBody(requestBody);
 
         LOGGER.info("Sending " + requestBodyJson);
-        Response response = buildResponse()
+        return buildResponse()
                 .body(requestBodyJson)
                 .when()
                 .post("/users/")
@@ -77,12 +63,10 @@ public class PublicApiDriver {
                 .statusCode(expectedStatusCode)
                 .extract()
                 .response();
-
-        return response;
     }
 
     public Response login(final String email, final String password, final int expectedStatusCode) {
-        Map<String, Object> requestBody = new HashMap<>();
+        final Map<String, Object> requestBody = new HashMap<>();
         if (email != null) {
             requestBody.put("email", email);
         }
@@ -93,7 +77,7 @@ public class PublicApiDriver {
         final String requestBodyJson = createJsonRequestBody(requestBody);
 
         LOGGER.info("Sending " + requestBodyJson);
-        Response response = buildResponse()
+        final Response response = buildResponse()
                 .body(requestBodyJson)
                 .when()
                 .post("/users/login")
@@ -118,11 +102,11 @@ public class PublicApiDriver {
         jtwCookie = response.getDetailedCookie("jwtToken");
     }
 
-    public Response getUser(int expectedStatusCode) {
+    public Response getUser(final int expectedStatusCode) {
         assertNotNull("Must be logged in first", loggedInEmail);
         assertNotNull("Must be logged in first", jwtToken);
 
-        Response response = buildResponse()
+        return buildResponse()
                 .when()
                 .get("/users/")
                 .then()
@@ -132,16 +116,14 @@ public class PublicApiDriver {
                 .statusCode(expectedStatusCode)
                 .extract()
                 .response();
-
-        return response;
     }
 
-    public Response getUser(String userId, int expectedStatusCode) {
+    public Response getUser(final String userId, final int expectedStatusCode) {
         if (loggedInEmail == null || jwtToken == null) {
             LOGGER.warn("Must be logged in first");
         }
 
-        Response response = buildResponse()
+        return buildResponse()
                 .when()
                 .get("/users/" + userId)
                 .then()
@@ -151,12 +133,10 @@ public class PublicApiDriver {
                 .statusCode(expectedStatusCode)
                 .extract()
                 .response();
-
-        return response;
     }
 
     public Response updateUser(final UUID userId, final String email, final String displayName, final String password, final int expectedStatusCode) {
-        Map<String, Object> user = new HashMap<>();
+        final Map<String, Object> user = new HashMap<>();
         if (email != null) {
             user.put("email", email);
         }
@@ -164,7 +144,7 @@ public class PublicApiDriver {
             user.put("displayName", displayName);
         }
 
-        Map<String, Object> requestBody = new HashMap<>();
+        final Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("user", user);
         if (password != null) {
             requestBody.put("password", password);
@@ -173,7 +153,7 @@ public class PublicApiDriver {
         final String requestBodyJson = createJsonRequestBody(requestBody);
 
         LOGGER.info("Sending " + requestBodyJson);
-        Response response = buildResponse()
+        final Response response = buildResponse()
                 .body(requestBodyJson)
                 .when()
                 .post("/users/" + userId)
@@ -205,7 +185,7 @@ public class PublicApiDriver {
         final String requestBodyJson;
         try {
             requestBodyJson = new ObjectMapper().writeValueAsString(requestBody);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             throw new RuntimeException("Unable to generate JSON request body", e);
         }
         return requestBodyJson;
@@ -215,7 +195,7 @@ public class PublicApiDriver {
         return jtwCookie;
     }
 
-    public void regenerateToken(final String secret, String userId, String email, String displayName, String expiry) {
+    public void regenerateToken(final String secret, final String userId, final String email, final String displayName, final String expiry) {
 
         final JWTConfiguration verifyingConfiguration = new JWTConfiguration();
         final JwtTokenManager tokenManager = verifyingConfiguration.buildTokenManager();
@@ -245,7 +225,7 @@ public class PublicApiDriver {
     }
 
     public Response refreshToken(final int expectedStatusCode) {
-        Response response = buildResponse()
+        final Response response = buildResponse()
                 .when()
                 .get("/users/refreshJWT")
                 .then()
@@ -265,7 +245,7 @@ public class PublicApiDriver {
     }
 
     public Response changePassword(final UUID userId, final String oldPassword, final String newPassword, final int expectedStatusCode) {
-        Map<String, Object> requestBody = new HashMap<>();
+        final Map<String, Object> requestBody = new HashMap<>();
         if (oldPassword != null) {
             requestBody.put("oldPassword", oldPassword);
         }
@@ -276,7 +256,7 @@ public class PublicApiDriver {
         final String requestBodyJson = createJsonRequestBody(requestBody);
 
         LOGGER.info("Sending " + requestBodyJson);
-        Response response = buildResponse()
+        return buildResponse()
                 .body(requestBodyJson)
                 .when()
                 .post("/users/" + userId + "/changePassword")
@@ -287,19 +267,13 @@ public class PublicApiDriver {
                 .statusCode(expectedStatusCode)
                 .extract()
                 .response();
-
-//        if (expectedStatusCode < 300) {
-//            saveCookie(response);
-//        }
-
-        return response;
     }
 
     private Map<String, Object> decodeJwtToken(final String token, final JwtTokenManager tokenManager) {
         final Map<String, Object> map;
         try {
             map = tokenManager.getJwtVerifier().verify(token);
-        } catch (NoSuchAlgorithmException | JWTVerifyException | SignatureException | IOException | InvalidKeyException e) {
+        } catch (final NoSuchAlgorithmException | JWTVerifyException | SignatureException | IOException | InvalidKeyException e) {
             throw new RuntimeException("Unable to verify existing token", e);
         }
         return map;
