@@ -71,62 +71,6 @@
           <skipTests>true</skipTests>
         </configuration>
       </plugin>
-
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <id>start-dropwizard</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <exec executable="java"
-                      dir="${basedir}"
-                      failonerror="true">
-                  <arg value="-jar"/>
-                  <arg value="../authrite-service/target/authrite-service-${project.version}.jar"/>
-                  <arg value="db"/>
-                  <arg value="migrate"/>
-                  <arg value="src/main/resources/authrite-service.yml"/>
-                </exec>
-
-                <exec executable="java"
-                      dir="${basedir}"
-                      spawn="true">
-                  <arg value="-DSTOP.PORT=9999"/>
-                  <arg value="-DSTOP.KEY=secret"/>
-                  <arg value="-jar"/>
-                  <arg value="../authrite-service/target/authrite-service-${project.version}.jar"/>
-                  <arg value="server"/>
-                  <arg value="src/main/resources/authrite-service.yml"/>
-                </exec>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.kuali.maven.plugins</groupId>
-        <artifactId>maven-http-plugin</artifactId>
-        <version>1.0.5</version>
-        <configuration>
-          <url>http://localhost:8080/</url>
-          <sleepInterval>1000</sleepInterval>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>wait</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -149,27 +93,95 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>9.3.5.v20151012</version>
-        <configuration>
-          <stopPort>9999</stopPort>
-          <stopKey>secret</stopKey>
-          <stopWait>10</stopWait>
-        </configuration>
-        <executions>
-          <execution>
-            <id>shutdown-dropwizard</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>stop</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>run-acceptance-tests</id>
+      <activation>
+        <property>
+          <name>!skipTests</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+              <execution>
+                <id>start-dropwizard</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target unless="skipTests">
+                    <exec executable="java"
+                          dir="${basedir}"
+                          failonerror="true">
+                      <arg value="-jar"/>
+                      <arg value="../authrite-service/target/authrite-service-${project.version}.jar"/>
+                      <arg value="db"/>
+                      <arg value="migrate"/>
+                      <arg value="src/main/resources/authrite-service.yml"/>
+                    </exec>
+
+                    <exec executable="java"
+                          dir="${basedir}"
+                          spawn="true">
+                      <arg value="-DSTOP.PORT=9999"/>
+                      <arg value="-DSTOP.KEY=secret"/>
+                      <arg value="-jar"/>
+                      <arg value="../authrite-service/target/authrite-service-${project.version}.jar"/>
+                      <arg value="server"/>
+                      <arg value="src/main/resources/authrite-service.yml"/>
+                    </exec>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.kuali.maven.plugins</groupId>
+            <artifactId>maven-http-plugin</artifactId>
+            <version>1.0.5</version>
+            <configuration>
+              <url>http://localhost:8080/</url>
+              <sleepInterval>1000</sleepInterval>
+            </configuration>
+            <executions>
+              <execution>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>wait</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <version>9.3.5.v20151012</version>
+            <configuration>
+              <stopPort>9999</stopPort>
+              <stopKey>secret</stopKey>
+              <stopWait>10</stopWait>
+            </configuration>
+            <executions>
+              <execution>
+                <id>shutdown-dropwizard</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
