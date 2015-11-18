@@ -5,7 +5,7 @@ machine:
 
 dependencies:
     override:
-        - mvn verify -DskipTests
+        - mvn clean verify -DskipPackaging -DskipTests -Dfindbugs.skip -Dcheckstyle.skip
 
 test:
     override:

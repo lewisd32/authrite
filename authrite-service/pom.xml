@@ -71,6 +71,15 @@
             </manifest>
           </archive>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>${packaging.phase}</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -99,7 +108,8 @@
         </configuration>
         <executions>
           <execution>
-            <phase>package</phase>
+            <id>build-fat-jar</id>
+            <phase>${packaging.phase}</phase>
             <goals>
               <goal>shade</goal>
             </goals>
@@ -116,4 +126,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>
