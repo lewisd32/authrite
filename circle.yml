@@ -1,0 +1,12 @@
+---
+machine:
+    java:
+        version: oraclejdk8
+
+dependencies:
+    override:
+        - mvn verify -DskipTests
+
+test:
+    override:
+        - mvn verify
