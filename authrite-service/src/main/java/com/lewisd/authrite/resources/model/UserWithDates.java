@@ -30,42 +30,42 @@ public class UserWithDates extends User {
                          @JsonProperty("emailValidatedDate") final Date emailValidatedDate) {
         // CHECKSTYLE.ON: ParameterNumber
         super(id, email, displayName, roles);
-        this.createdDate = createdDate;
-        this.modifiedDate = modifiedDate;
-        this.deletedDate = deletedDate;
-        this.lastLoginDate = lastLoginDate;
-        this.lastPasswordChangeDate = lastPasswordChangeDate;
-        this.emailValidatedDate = emailValidatedDate;
+        this.createdDate = clone(createdDate);
+        this.modifiedDate = clone(modifiedDate);
+        this.deletedDate = clone(deletedDate);
+        this.lastLoginDate = clone(lastLoginDate);
+        this.lastPasswordChangeDate = clone(lastPasswordChangeDate);
+        this.emailValidatedDate = clone(emailValidatedDate);
     }
 
     @JsonProperty
     public Date getCreatedDate() {
-        return createdDate;
+        return clone(createdDate);
     }
 
     @JsonProperty
     public Date getModifiedDate() {
-        return modifiedDate;
+        return clone(modifiedDate);
     }
 
     @JsonProperty
     public Date getDeletedDate() {
-        return deletedDate;
+        return clone(deletedDate);
     }
 
     @JsonProperty
     public Date getLastLoginDate() {
-        return lastLoginDate;
+        return clone(lastLoginDate);
     }
 
     @JsonProperty
     public Date getLastPasswordChangeDate() {
-        return lastPasswordChangeDate;
+        return clone(lastPasswordChangeDate);
     }
 
     @JsonProperty
     public Date getEmailValidatedDate() {
-        return emailValidatedDate;
+        return clone(emailValidatedDate);
     }
 
     public static UserWithDates fromDB(final DBUser user) {
@@ -82,4 +82,10 @@ public class UserWithDates extends User {
                 user.getEmailValidatedDate());
     }
 
+    private static Date clone(final Date date) {
+        if (date == null) {
+            return null;
+        }
+        return new Date(date.getTime());
+    }
 }
