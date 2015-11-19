@@ -45,7 +45,7 @@ public class ChangePasswordAccTest extends DslTestCase {
     }
 
     @Test
-    public void shouldNotChangeMissingUserPassword () {
+    public void shouldNotChangeMissingUserPassword() {
         dslTools.generateFakeUserId("someaddress@lewisd.com");
         publicApi.changePassword("someaddress@lewisd.com", "oldPassword: password123", "newPassword: password456",
                                  "expectedStatus: FORBIDDEN",
