@@ -41,8 +41,8 @@ public class DurationParser {
 
     ParseResult<Duration> parsePartial(final Deque<String> tokenList) {
         if (tokenList.size() < 2) {
-            throw new IllegalArgumentException("Description must contain at least two components (was '" +
-                                                       tokenList + "')");
+            throw new IllegalArgumentException("Description must contain at least two components (was '"
+                                                       + tokenList + "')");
         }
 
         long duration = 0;
@@ -59,11 +59,11 @@ public class DurationParser {
         return new ParseResult<>(Duration.ofMillis(duration), tokenList);
     }
 
-    private static Optional<Long> parseTimeNumeric(Deque<String> tokenList) {
+    private static Optional<Long> parseTimeNumeric(final Deque<String> tokenList) {
         final int numericComponent;
         try {
             numericComponent = Integer.parseInt(tokenList.getFirst());
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return Optional.empty();
         }
         tokenList.removeFirst();

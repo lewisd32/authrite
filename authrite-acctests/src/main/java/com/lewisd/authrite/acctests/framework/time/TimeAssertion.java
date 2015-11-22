@@ -12,7 +12,7 @@ public class TimeAssertion {
     private final String fieldName;
     private final Date beginDate;
     private final Date endDate;
-    private boolean expectingNull;
+    private final boolean expectingNull;
 
     public TimeAssertion(final String fieldName, final Date beginDate, final Date endDate, final boolean expectingNull) {
         this.fieldName = fieldName;
@@ -44,7 +44,7 @@ public class TimeAssertion {
         }
     }
 
-    private String formatDate(Date date) {
+    private String formatDate(final Date date) {
         return DATE_FORMAT.format(date);
     }
 

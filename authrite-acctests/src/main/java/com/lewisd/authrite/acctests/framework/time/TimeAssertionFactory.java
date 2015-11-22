@@ -15,24 +15,25 @@ public class TimeAssertionFactory {
         timeParser = new TimeParser(dates, fieldName);
     }
 
+    //CHECKSTYLE.OFF: ReturnCount
     public TimeAssertion parse(final String description) {
         final Deque<String> tokenList = Tokenizer.parse(description);
         if (tokenList.isEmpty()) {
             throw new IllegalArgumentException(fieldName + " can't be empty");
         }
 
-        String firstToken = tokenList.removeFirst();
-        if (firstToken.equalsIgnoreCase("is")) {
-            String secondToken = tokenList.removeFirst();
-            if (secondToken.equalsIgnoreCase("never")) {
+        final String firstToken = tokenList.removeFirst();
+        if ("is".equalsIgnoreCase(firstToken)) {
+            final String secondToken = tokenList.removeFirst();
+            if ("never".equalsIgnoreCase(secondToken)) {
                 return new TimeAssertion(fieldName, null, null, true);
             }
             throw new IllegalArgumentException("Expected format: is never");
-        } else if (firstToken.equalsIgnoreCase("between")) {
+        } else if ("between".equalsIgnoreCase(firstToken)) {
 
-            ParseResult<Date> firstDateResult = timeParser.parsePartial(tokenList);
-            String conjunction = tokenList.removeFirst();
-            if (!conjunction.equalsIgnoreCase("and")) {
+            final ParseResult<Date> firstDateResult = timeParser.parsePartial(tokenList);
+            final String conjunction = tokenList.removeFirst();
+            if (!conjunction.equalsIgnoreCase(conjunction)) {
                 throw new IllegalArgumentException("Expected format: between date1 and date2");
             }
 
@@ -40,14 +41,15 @@ public class TimeAssertionFactory {
             final Date date2 = timeParser.parse(tokenList);
 
             return new TimeAssertion(fieldName, date1, date2, false);
-        } else if (firstToken.equalsIgnoreCase("after")) {
-            Date date = timeParser.parse(tokenList);
+        } else if ("after".equalsIgnoreCase(firstToken)) {
+            final Date date = timeParser.parse(tokenList);
             return new TimeAssertion(fieldName, date, null, false);
-        } else if (firstToken.equalsIgnoreCase("before")) {
-            Date date = timeParser.parse(tokenList);
+        } else if ("before".equalsIgnoreCase(firstToken)) {
+            final Date date = timeParser.parse(tokenList);
             return new TimeAssertion(fieldName, null, date, false);
         }
         throw new IllegalArgumentException("Unknown date expectation format: " + description);
     }
+    //CHECKSTYLE.ON: ReturnCount
 
 }

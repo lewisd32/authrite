@@ -13,8 +13,8 @@ public class DslTools {
     }
 
     public void generateFakeUserId(final String alias) {
-        String email = testContext.emailAddresses.resolve(alias);
-        UUID userId = UUID.randomUUID();
+        final String email = testContext.emailAddresses.resolve(alias);
+        final UUID userId = UUID.randomUUID();
         final User user = new User();
         user.setId(userId);
         user.setEmail(email);

@@ -23,7 +23,7 @@ public class User {
         // for deserialization
     }
 
-    public User(UUID id, String email, String displayName, Set<Roles> roles) {
+    public User(final UUID id, final String email, final String displayName, final Set<Roles> roles) {
         this.id = id;
         this.email = email;
         this.displayName = displayName;
@@ -34,7 +34,7 @@ public class User {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
@@ -42,7 +42,7 @@ public class User {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(final String email) {
         this.email = email;
     }
 
@@ -50,7 +50,7 @@ public class User {
         return displayName;
     }
 
-    public void setDisplayName(String displayName) {
+    public void setDisplayName(final String displayName) {
         this.displayName = displayName;
     }
 
@@ -58,7 +58,7 @@ public class User {
         return roles;
     }
 
-    public void setRoles(Set<Roles> roles) {
+    public void setRoles(final Set<Roles> roles) {
         this.roles = roles;
     }
 

@@ -18,6 +18,7 @@ import java.util.UUID;
  *
  * @see Dsl
  */
+//CHECKSTYLE.OFF: VisibilityModifier
 public class TestContext {
     public static final String ADMIN_EMAIL = "admin@lewisd.com";
     public static final String ADMIN_DISPLAY_NAME = "Admin";
@@ -39,16 +40,16 @@ public class TestContext {
         ));
     }
 
-    public void addUser(User user) {
+    public void addUser(final User user) {
         userIdsByEmail.put(user.getEmail(), user.getId());
         emailsByUserId.put(user.getId(), user.getEmail());
     }
 
-    public UUID getUserId(String email) {
+    public UUID getUserId(final String email) {
         return userIdsByEmail.get(email);
     }
 
-    public String getUserEmail(UUID id) {
+    public String getUserEmail(final UUID id) {
         return emailsByUserId.get(id);
     }
 

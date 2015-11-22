@@ -33,23 +33,23 @@ public class TimeParser {
     }
 
     ParseResult<Date> parsePartial(final Deque<String> tokenList) {
-        String firstToken = tokenList.getFirst();
+        final String firstToken = tokenList.getFirst();
         if (Character.isDigit(firstToken.charAt(0))) {
             final ParseResult<Duration> result = new DurationParser().parsePartial(tokenList);
 
-            String preposition = tokenList.removeFirst();
+            final String preposition = tokenList.removeFirst();
 
-            String alias = tokenList.removeFirst();
+            final String alias = tokenList.removeFirst();
 
-            Date date = dates.getTime(alias);
+            final Date date = dates.getTime(alias);
             if (date == null) {
                 throw new IllegalArgumentException("No date named '" + alias + "' found for " + fieldName);
             }
 
             final long durationSign;
-            if (preposition.equalsIgnoreCase("after")) {
+            if ("after".equalsIgnoreCase(preposition)) {
                 durationSign = 1;
-            } else if (preposition.equalsIgnoreCase("before")) {
+            } else if ("before".equalsIgnoreCase(preposition)) {
                 durationSign = -1;
             } else {
                 throw new IllegalArgumentException("Unknown preposition '" + preposition + "'. Should be 'before' or 'after'");
@@ -59,8 +59,8 @@ public class TimeParser {
             return new ParseResult<>(adjustedDate, tokenList);
         }
 
-        String alias = tokenList.removeFirst();
-        Date date = dates.getTime(alias);
+        final String alias = tokenList.removeFirst();
+        final Date date = dates.getTime(alias);
         if (date == null) {
             throw new IllegalArgumentException("No date named '" + alias + "' found for " + fieldName);
         }

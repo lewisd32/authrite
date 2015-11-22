@@ -7,11 +7,9 @@ import static org.junit.Assert.assertThat;
 
 public class DurationAssertion {
 
-    private final String fieldName;
     private final Duration matchExact;
 
-    public DurationAssertion(final String fieldName, final Duration matchExact) {
-        this.fieldName = fieldName;
+    public DurationAssertion(final Duration matchExact) {
         this.matchExact = matchExact;
     }
 
