@@ -18,8 +18,8 @@ public class TimeAssertionFactoryTest {
 
     @Before
     public void setupDates() {
-        dates.storeTime("firstDate", FIRST_DATE);
-        dates.storeTime("secondDate", SECOND_DATE);
+        dates.store("firstDate", FIRST_DATE);
+        dates.store("secondDate", SECOND_DATE);
     }
 
     @Test

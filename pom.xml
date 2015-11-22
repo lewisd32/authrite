@@ -23,6 +23,7 @@
     <java.version>1.8</java.version>
     <dropwizard.version>0.9.0</dropwizard.version>
     <dropwizard-modules.version>0.9.0-1</dropwizard-modules.version>
+    <unacceptable.version>0.0.2-dev.26+c113854</unacceptable.version>
   </properties>
 
   <modules>
@@ -143,7 +144,7 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.lewisd</groupId>
+        <groupId>com.lmax</groupId>
         <artifactId>simple-dsl</artifactId>
         <version>2.1-SNAPSHOT</version>
         <scope>test</scope>
@@ -151,25 +152,25 @@
       <dependency>
         <groupId>io.github.unacceptable</groupId>
         <artifactId>unacceptable-aliases</artifactId>
-        <version>[0.0.1,)</version>
+        <version>${unacceptable.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>io.github.unacceptable</groupId>
         <artifactId>unacceptable-dsl</artifactId>
-        <version>[0.0.1,)</version>
+        <version>${unacceptable.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>io.github.unacceptable</groupId>
         <artifactId>unacceptable-lazy</artifactId>
-        <version>[0.0.1,)</version>
+        <version>${unacceptable.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>io.github.unacceptable</groupId>
         <artifactId>unacceptable-database</artifactId>
-        <version>[0.0.1,)</version>
+        <version>${unacceptable.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>

@@ -13,6 +13,7 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 
 import java.time.Duration;
+import java.util.Date;
 
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
@@ -58,7 +59,7 @@ public class DslTestCase {
         // by calling this twice too closely.
         sleep(padding);
 
-        testContext.dates.recordTime(alias);
+        testContext.dates.store(alias, new Date());
 
         sleep(padding);
     }

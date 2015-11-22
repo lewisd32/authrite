@@ -40,7 +40,7 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.lewisd</groupId>
+      <groupId>com.lmax</groupId>
       <artifactId>simple-dsl</artifactId>
       <scope>compile</scope>
     </dependency>

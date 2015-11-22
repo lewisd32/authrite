@@ -12,13 +12,14 @@ import com.lewisd.authrite.acctests.framework.time.DurationAssertionFactory;
 import com.lewisd.authrite.acctests.framework.time.TimeAssertion;
 import com.lewisd.authrite.acctests.framework.time.TimeAssertionFactory;
 import com.lewisd.authrite.acctests.framework.time.TimeParser;
+import com.lewisd.authrite.acctests.framework.valueholder.ValueHolder;
 import com.lewisd.authrite.acctests.model.User;
 import com.lewisd.authrite.auth.JWTConfiguration;
 import com.lewisd.authrite.errors.APIError;
 import com.lmax.simpledsl.DslParams;
 import com.lmax.simpledsl.OptionalParam;
 import com.lmax.simpledsl.RequiredParam;
-import io.github.unacceptable.alias.AliasStore;
+import io.github.unacceptable.alias.AbsentWrappingGenerator;
 import io.github.unacceptable.dsl.SimpleDsl;
 import io.github.unacceptable.lazy.Lazily;
 import org.apache.http.HttpStatus;
@@ -34,10 +35,12 @@ import java.security.SignatureException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
@@ -54,143 +57,175 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     }
 
     public void createUser(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> email = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> displayName = ValueHolder.fromStore(testContext.displayNames);
+        final ValueHolder<String> password = ValueHolder.fromStore(testContext.passwords);
+        final ValueHolder<Integer> expectedStatus = ValueHolder.withFunction(this::getStatusCode);
+        final ValueHolder<List<String>> expectedErrors = ValueHolder.multipleValues();
+        final ValueHolder<String> id = ValueHolder.singleValue();
+
+        new DslParams(
                 args,
-                PublicApi.emailParam(),
-                PublicApi.displayNameParam(),
-                PublicApi.passwordParam(),
-                PublicApi.expectedStatusParam(),
-                PublicApi.expectedError(),
-                PublicApi.idParam()
+                PublicApi.emailParam(email),
+                PublicApi.displayNameParam(displayName),
+                PublicApi.passwordParam(password),
+                PublicApi.expectedStatusParam(expectedStatus),
+                PublicApi.expectedError(expectedErrors),
+                PublicApi.idParam(id)
         );
-        final String email = testContext.emailAddresses.resolve(params.value("email"));
-        final String displayName = testContext.displayNames.resolve(params.value("displayName"));
-        final String password = testContext.passwords.resolve(params.value("password"));
-        final int expectedStatus = getStatusCode(params.value("expectedStatus"));
-        final String id = params.value("id");
 
-        final Response response = driver().createUser(email, displayName, password, expectedStatus, id);
+        final Response response = driver().createUser(
+                email.get(),
+                displayName.get(),
+                password.get(),
+                expectedStatus.get(),
+                id.get());
 
-        if (expectedStatus == 200) {
+        if (expectedStatus.get() == 200) {
             final User user = response.as(User.class);
             assertNull("Shouldn't have jwt cookie", response.getCookie("jwtToken"));
-            assertEquals(email, user.getEmail());
-            assertEquals(displayName, user.getDisplayName());
+            assertEquals(email.get(), user.getEmail());
+            assertEquals(displayName.get(), user.getDisplayName());
             assertNotNull(user.getId());
-            if (id != null) {
-                Assert.assertNotEquals(id, user.getId());
+            if (id.hasValue()) {
+                Assert.assertNotEquals(id.get(), user.getId());
             }
             testContext.addUser(user);
         } else {
-            assertExpectedErrors(params, response);
+            assertExpectedErrors(expectedErrors, response);
         }
     }
 
     public void login(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> email = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> password = ValueHolder.fromStore(testContext.passwords);
+        final ValueHolder<Integer> expectedStatus = ValueHolder.withFunction(this::getStatusCode);
+        final ValueHolder<List<String>> expectedErrors = ValueHolder.multipleValues();
+
+
+        new DslParams(
                 args,
-                PublicApi.emailParam(),
-                PublicApi.passwordParam(),
-                PublicApi.expectedStatusParam().setDefault("SEE_OTHER"),
-                PublicApi.expectedError()
+                PublicApi.emailParam(email),
+                PublicApi.passwordParam(password),
+                PublicApi.expectedStatusParam(expectedStatus).setDefault("SEE_OTHER"),
+                PublicApi.expectedError(expectedErrors)
         );
 
-        final String email = testContext.emailAddresses.resolve(params.value("email"));
-        final String password = testContext.passwords.resolve(params.value("password"));
-        final int expectedStatus = getStatusCode(params.value("expectedStatus"));
+        final Response response = driver().login(email.get(), password.get(), expectedStatus.get());
 
-        final Response response = driver().login(email, password, expectedStatus);
-
-        if (expectedStatus == 303) {
+        if (expectedStatus.get() == 303) {
             // Find the id of the user from when it was created
-            final UUID userId = testContext.getUserId(email);
+            final UUID userId = testContext.getUserId(email.get());
             final String location = response.getHeader("Location");
 
             // Assert that the userId in the redirect is correct
             Assert.assertThat(location, endsWith("/" + userId));
         } else {
-            assertExpectedErrors(params, response);
+            assertExpectedErrors(expectedErrors, response);
         }
     }
 
     public void assertUser(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> userEmail = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> email = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> displayName = ValueHolder.fromStore(testContext.displayNames);
+        final ValueHolder<Integer> expectedStatus = ValueHolder.withFunction(this::getStatusCode);
+        final ValueHolder<List<String>> expectedErrors = ValueHolder.multipleValues();
+        final ValueHolder<String> createdDate = ValueHolder.singleValue();
+        final ValueHolder<String> modifiedDate = ValueHolder.singleValue();
+        final ValueHolder<String> deletedDate = ValueHolder.singleValue();
+        final ValueHolder<String> lastLoginDate = ValueHolder.singleValue();
+        final ValueHolder<String> lastPasswordChangeDate = ValueHolder.singleValue();
+        final ValueHolder<String> emailValidatedDate = ValueHolder.singleValue();
+
+        new DslParams(
                 args,
-                new RequiredParam("user"),
-                new OptionalParam("email"),
-                new OptionalParam("displayName"),
-                PublicApi.expectedStatusParam(),
-                PublicApi.expectedError(),
-                new OptionalParam("createdDate"),
-                new OptionalParam("modifiedDate"),
-                new OptionalParam("deletedDate"),
-                new OptionalParam("lastLoginDate"),
-                new OptionalParam("lastPasswordChangeDate"),
-                new OptionalParam("emailValidatedDate")
+                new RequiredParam("user").setConsumer(userEmail),
+                new OptionalParam("email").setConsumer(email),
+                new OptionalParam("displayName").setConsumer(displayName),
+                PublicApi.expectedStatusParam(expectedStatus),
+                PublicApi.expectedError(expectedErrors),
+                new OptionalParam("createdDate").setConsumer(createdDate),
+                new OptionalParam("modifiedDate").setConsumer(modifiedDate),
+                new OptionalParam("deletedDate").setConsumer(deletedDate),
+                new OptionalParam("lastLoginDate").setConsumer(lastLoginDate),
+                new OptionalParam("lastPasswordChangeDate").setConsumer(lastPasswordChangeDate),
+                new OptionalParam("emailValidatedDate").setConsumer(emailValidatedDate)
         );
 
-        final String userEmail = testContext.emailAddresses.resolve(params.value("user"));
-        final UUID userId = testContext.getUserId(userEmail);
+        final UUID userId = testContext.getUserId(userEmail.get());
 
-        final String email = testContext.emailAddresses.resolve(params.value("email"));
-        final String displayName = testContext.displayNames.resolve(params.value("displayName"));
-        final int expectedStatus = getStatusCode(params.value("expectedStatus"));
+        final Response response = driver().getUser(userId.toString(), expectedStatus.get());
 
-        final Response response = driver().getUser(userId.toString(), expectedStatus);
-
-        if (expectedStatus == 200) {
+        if (expectedStatus.get() == 200) {
             final User user = response.as(User.class);
-            if (email != null) {
-                assertEquals(email, user.getEmail());
+            if (email.hasValue()) {
+                assertEquals(email.get(), user.getEmail());
             }
-            if (displayName != null) {
-                assertEquals(displayName, user.getDisplayName());
+            if (displayName.hasValue()) {
+                assertEquals(displayName.get(), user.getDisplayName());
             }
-            assertUserDates(params, user);
+            assertUserDates(user,
+                            createdDate,
+                            modifiedDate,
+                            deletedDate,
+                            lastLoginDate,
+                            lastPasswordChangeDate,
+                            emailValidatedDate);
         } else {
-            assertExpectedErrors(params, response);
+            assertExpectedErrors(expectedErrors, response);
         }
     }
 
-    private void assertUserDates(final DslParams params, final User user) {
-        if (params.hasValue("createdDate")) {
-            assertTime("createdDate", params.value("createdDate"), user.getCreatedDate());
+    private void assertUserDates(final User user,
+                                 final ValueHolder<String> createdDate,
+                                 final ValueHolder<String> modifiedDate,
+                                 final ValueHolder<String> deletedDate,
+                                 final ValueHolder<String> lastLoginDate,
+                                 final ValueHolder<String> lastPasswordChangeDate,
+                                 final ValueHolder<String> emailValidatedDate) {
+        if (createdDate.hasValue()) {
+            assertTime("createdDate", createdDate.getRawValue(), user.getCreatedDate());
         }
-        if (params.hasValue("modifiedDate")) {
-            assertTime("modifiedDate", params.value("modifiedDate"), user.getModifiedDate());
+        if (modifiedDate.hasValue()) {
+            assertTime("modifiedDate", modifiedDate.get(), user.getModifiedDate());
         }
-        if (params.hasValue("deletedDate")) {
-            assertTime("deletedDate", params.value("deletedDate"), user.getDeletedDate());
+        if (deletedDate.hasValue()) {
+            assertTime("deletedDate", deletedDate.get(), user.getDeletedDate());
         }
-        if (params.hasValue("lastLoginDate")) {
-            assertTime("lastLoginDate", params.value("lastLoginDate"), user.getLastLoginDate());
+        if (lastLoginDate.hasValue()) {
+            assertTime("lastLoginDate", lastLoginDate.get(), user.getLastLoginDate());
         }
-        if (params.hasValue("lastPasswordChangeDate")) {
-            assertTime("lastPasswordChangeDate", params.value("lastPasswordChangeDate"), user.getLastPasswordChangeDate());
+        if (lastPasswordChangeDate.hasValue()) {
+            assertTime("lastPasswordChangeDate", lastPasswordChangeDate.get(), user.getLastPasswordChangeDate());
         }
-        if (params.hasValue("emailValidatedDate")) {
-            assertTime("emailValidatedDate", params.value("emailValidatedDate"), user.getEmailValidatedDate());
+        if (emailValidatedDate.hasValue()) {
+            assertTime("emailValidatedDate", emailValidatedDate.get(), user.getEmailValidatedDate());
         }
     }
 
     public void assertJwtToken(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> cookieMaxAge = ValueHolder.singleValue();
+        final ValueHolder<String> cookieExpiry = ValueHolder.singleValue();
+        final ValueHolder<String> jwtTokenExpiry = ValueHolder.singleValue();
+
+        new DslParams(
                 args,
-                new OptionalParam("cookieMaxAge"),
-                new OptionalParam("cookieExpiry"),
-                new OptionalParam("jwtTokenExpiry")
+                new OptionalParam("cookieMaxAge").setConsumer(cookieMaxAge),
+                new OptionalParam("cookieExpiry").setConsumer(cookieExpiry),
+                new OptionalParam("jwtTokenExpiry").setConsumer(jwtTokenExpiry)
         );
 
         final Cookie cookie = driver().getJtwCookie();
 
-        if (params.hasValue("cookieMaxAge")) {
-            assertDuration(params.value("cookieMaxAge"), Duration.ofSeconds(cookie.getMaxAge()));
+        if (cookieMaxAge.hasValue()) {
+            assertDuration(cookieMaxAge.get(), Duration.ofSeconds(cookie.getMaxAge()));
         }
-        if (params.hasValue("cookieExpiry")) {
-            assertTime("cookieExpiry", params.value("cookieExpiry"), cookie.getExpiryDate());
+        if (cookieExpiry.hasValue()) {
+            assertTime("cookieExpiry", cookieExpiry.get(), cookie.getExpiryDate());
         }
 
-        if (params.hasValue("jwtTokenExpiry")) {
+        if (jwtTokenExpiry.hasValue()) {
             final String jwtToken = cookie.getValue();
             final Map<String, Object> map;
             try {
@@ -199,118 +234,118 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
                 throw new RuntimeException("Unable to parse token", e);
             }
             final Date expiryDate = new Date(((int) map.get("exp")) * 1000L);
-            assertTime("jwtTokenExpiry", params.value("jwtTokenExpiry"), expiryDate);
+            assertTime("jwtTokenExpiry", jwtTokenExpiry.get(), expiryDate);
         }
 
     }
 
     public void updateUser(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> userEmail = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> email = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> displayName = ValueHolder.fromStore(testContext.displayNames);
+        final ValueHolder<String> password = ValueHolder.fromStore(testContext.passwords);
+        final ValueHolder<Integer> expectedStatus = ValueHolder.withFunction(this::getStatusCode);
+        final ValueHolder<List<String>> expectedErrors = ValueHolder.multipleValues();
+
+        new DslParams(
                 args,
-                new RequiredParam("user"),
-                new OptionalParam("email"),
-                new OptionalParam("displayName"),
-                new OptionalParam("password"),
-                PublicApi.expectedStatusParam().setDefault("NO_CONTENT"),
-                PublicApi.expectedError()
+                new RequiredParam("user").setConsumer(userEmail),
+                new OptionalParam("email").setConsumer(email),
+                new OptionalParam("displayName").setConsumer(displayName),
+                new OptionalParam("password").setConsumer(password),
+                PublicApi.expectedStatusParam(expectedStatus).setDefault("NO_CONTENT"),
+                PublicApi.expectedError(expectedErrors)
         );
 
-        final String userEmail = testContext.emailAddresses.resolve(params.value("user"));
-        final String email = testContext.emailAddresses.resolve(params.value("email"));
-        final String displayName = testContext.displayNames.resolve(params.value("displayName"));
-        final String password = testContext.passwords.resolve(params.value("password"));
+        final UUID userId = testContext.getUserId(userEmail.get());
+        final Response response = driver().updateUser(
+                userId,
+                email.get(),
+                displayName.get(),
+                password.get(),
+                expectedStatus.get());
 
-        final int expectedStatus = getStatusCode(params.value("expectedStatus"));
-
-        final UUID userId = testContext.getUserId(userEmail);
-        final Response response = driver().updateUser(userId, email, displayName, password, expectedStatus);
-
-        if (expectedStatus == 204) {
+        if (expectedStatus.get() == 204) {
             assertNotNull("Should have jwt cookie", response.getCookie("jwtToken"));
         } else {
-            assertExpectedErrors(params, response);
+            assertExpectedErrors(expectedErrors, response);
         }
     }
 
     public void regenerateToken(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> email = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> displayName = ValueHolder.fromStore(testContext.displayNames);
+        final ValueHolder<String> id = ValueHolder.singleValue();
+        final ValueHolder<String> expiry = ValueHolder.withFunction(alias -> new AbsentWrappingGenerator<>(description -> {
+            final Date expiryDate = new TimeParser(testContext.dates, "expiry").parse(description);
+            return Long.toString(TimeUnit.MILLISECONDS.toSeconds(expiryDate.getTime()));
+        }).generate(alias));
+        final ValueHolder<String> secret = ValueHolder.singleValue();
+
+        new DslParams(
                 args,
-                new OptionalParam("email"),
-                new OptionalParam("displayName"),
-                new OptionalParam("id"),
-                new OptionalParam("expiry"),
-                new OptionalParam("secret").setDefault(new JWTConfiguration().getJwtSecret())
+                new OptionalParam("email").setConsumer(email),
+                new OptionalParam("displayName").setConsumer(displayName),
+                new OptionalParam("id").setConsumer(id),
+                new OptionalParam("expiry").setConsumer(expiry),
+                new OptionalParam("secret").setDefault(new JWTConfiguration().getJwtSecret()).setConsumer(secret)
         );
 
-        final String expiry;
-        if (params.hasValue("expiry")) {
-            if (AliasStore.ABSENT.equals(params.value("expiry"))) {
-                expiry = AliasStore.ABSENT;
-            } else {
-                final String description = params.value("expiry");
-                final Date expiryDate = new TimeParser(testContext.dates, "expiry").parse(description);
-
-                expiry = Long.toString(TimeUnit.MILLISECONDS.toSeconds(expiryDate.getTime()));
-            }
-        } else {
-            expiry = null;
-        }
-
-
         driver().regenerateToken(
-                params.value("secret"),
-                AliasStore.ABSENT.equals(params.value("id"))
-                        ? AliasStore.ABSENT
-                        : params.value("id"),
-                AliasStore.ABSENT.equals(params.value("email"))
-                        ? AliasStore.ABSENT
-                        : testContext.emailAddresses.resolve(params.value("email")),
-                AliasStore.ABSENT.equals(params.value("displayName"))
-                        ? AliasStore.ABSENT
-                        : testContext.displayNames.resolve(params.value("displayName")),
-                expiry
+                secret.get(),
+                id.get(),
+                email.get(),
+                displayName.get(),
+                expiry.get()
         );
     }
 
     public void refreshToken(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<Integer> expectedStatus = ValueHolder.withFunction(this::getStatusCode);
+        final ValueHolder<List<String>> expectedErrors = ValueHolder.multipleValues();
+
+        new DslParams(
                 args,
-                PublicApi.expectedStatusParam().setDefault("NO_CONTENT"),
-                PublicApi.expectedError()
+                PublicApi.expectedStatusParam(expectedStatus).setDefault("NO_CONTENT"),
+                PublicApi.expectedError(expectedErrors)
         );
 
-        final int expectedStatus = getStatusCode(params.value("expectedStatus"));
+        final Response response = driver().refreshToken(expectedStatus.get());
 
-        final Response response = driver().refreshToken(expectedStatus);
-
-        if (expectedStatus == 204) {
+        if (expectedStatus.get() == 204) {
             assertNotNull("Should have jwt cookie", response.getCookie("jwtToken"));
         } else {
-            assertExpectedErrors(params, response);
+            assertExpectedErrors(expectedErrors, response);
         }
     }
 
     public void changePassword(final String... args) {
-        final DslParams params = new DslParams(
+        final ValueHolder<String> email = ValueHolder.fromStore(testContext.emailAddresses);
+        final ValueHolder<String> oldPassword = ValueHolder.fromStore(testContext.passwords);
+        final ValueHolder<String> newPassword = ValueHolder.fromStore(testContext.passwords);
+        final ValueHolder<Integer> expectedStatus = ValueHolder.withFunction(this::getStatusCode);
+        final ValueHolder<List<String>> expectedErrors = ValueHolder.multipleValues();
+
+        new DslParams(
                 args,
-                PublicApi.emailParam(),
-                new RequiredParam("oldPassword"),
-                new RequiredParam("newPassword"),
-                PublicApi.expectedStatusParam().setDefault("NO_CONTENT"),
-                PublicApi.expectedError()
+                PublicApi.emailParam(email),
+                new RequiredParam("oldPassword").setConsumer(oldPassword),
+                new RequiredParam("newPassword").setConsumer(newPassword),
+                PublicApi.expectedStatusParam(expectedStatus).setDefault("NO_CONTENT"),
+                PublicApi.expectedError(expectedErrors)
         );
-        final String email = testContext.emailAddresses.resolve(params.value("email"));
-        final String oldPassword = testContext.passwords.resolve(params.value("oldPassword"));
-        final String newPassword = testContext.passwords.resolve(params.value("newPassword"));
-        final int expectedStatus = getStatusCode(params.value("expectedStatus"));
 
-        final UUID userId = testContext.getUserId(email);
-        final Response response = driver().changePassword(userId, oldPassword, newPassword, expectedStatus);
+        final UUID userId = testContext.getUserId(email.get());
+        final Response response = driver().changePassword(
+                userId,
+                oldPassword.get(),
+                newPassword.get(),
+                expectedStatus.get());
 
-        if (expectedStatus == 204) {
+        if (expectedStatus.get() == 204) {
             assertNull("Shouldn't have jwt cookie", response.getCookie("jwtToken"));
         } else {
-            assertExpectedErrors(params, response);
+            assertExpectedErrors(expectedErrors, response);
         }
     }
 
@@ -325,57 +360,58 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     }
 
     public void ensureUserIdDoesNotMatch(final String... args) {
-        final DslParams params = new DslParams(
-                args,
-                PublicApi.idParam()
-        );
+        final ValueHolder<String> id = ValueHolder.singleValue();
 
-        final String id = params.value("id");
+        new DslParams(
+                args,
+                PublicApi.idParam(id)
+        );
 
         final Response response = driver().getUser(200);
 
         final User user = response.as(User.class);
-        Assert.assertNotEquals(id, user.getId().toString());
+        Assert.assertNotEquals(id.get(), user.getId().toString());
     }
 
 
-    private void assertExpectedErrors(final DslParams params, final Response response) {
-        final String[] expectedErrors = params.values("expectedError");
-        if (expectedErrors == null || expectedErrors.length == 0) {
+    private void assertExpectedErrors(final ValueHolder<List<String>> expectedErrors, final Response response) {
+        if (expectedErrors.get() == null || expectedErrors.get().isEmpty()) {
             throw new IllegalArgumentException("expectedError is required with non-OK status");
         }
         final APIError error = response.as(APIError.class);
 
-        final Set<String> expectedErrorsSet = Sets.newHashSet(expectedErrors);
+        final Set<String> expectedErrorsSet = Sets.newHashSet(expectedErrors.get());
         final Set<String> actualErrorsSet = Sets.newHashSet(error.getErrors());
         assertEquals(expectedErrorsSet, actualErrorsSet);
     }
 
-    private static RequiredParam emailParam() {
-        return new RequiredParam("email");
+    private static RequiredParam emailParam(final Consumer<String> consumer) {
+        return new RequiredParam("email").setConsumer(consumer).getAsRequiredParam();
     }
 
-    private static RequiredParam displayNameParam() {
-        return new RequiredParam("displayName");
+    private static RequiredParam displayNameParam(final Consumer<String> consumer) {
+        return (RequiredParam) new RequiredParam("displayName").setConsumer(consumer);
     }
 
-    private static RequiredParam passwordParam() {
-        return new RequiredParam("password");
+    private static RequiredParam passwordParam(final Consumer<String> consumer) {
+        return (RequiredParam) new RequiredParam("password").setConsumer(consumer);
     }
 
-    private static OptionalParam expectedStatusParam() {
-        return new OptionalParam("expectedStatus")
-                .setAllowedValues(getStatusCodes().keySet().toArray(new String[0]))
+    private static OptionalParam expectedStatusParam(final Consumer<String> consumer) {
+        return (OptionalParam) new OptionalParam("expectedStatus")
+                .setAllowedValues(getStatusCodes().keySet().stream().toArray(String[]::new))
+                .setConsumer(consumer)
                 .setDefault("OK");
     }
 
-    private static OptionalParam expectedError() {
-        return new OptionalParam("expectedError")
-                .setAllowMultipleValues();
+    private static OptionalParam expectedError(final Consumer<String> consumer) {
+        return (OptionalParam) new OptionalParam("expectedError")
+                .setAllowMultipleValues()
+                .setConsumer(consumer);
     }
 
-    private static OptionalParam idParam() {
-        return new OptionalParam("id");
+    private static OptionalParam idParam(final Consumer<String> consumer) {
+        return (OptionalParam) new OptionalParam("id").setConsumer(consumer);
     }
 
     private static Map<String, Integer> getStatusCodes() {
