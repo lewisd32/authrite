@@ -56,12 +56,15 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     public void createUser(final String... args) {
         final DslParams params = new DslParams(
                 args,
-                PublicApi.emailParam(),
-                PublicApi.displayNameParam(),
-                PublicApi.passwordParam(),
-                PublicApi.expectedStatusParam(),
-                PublicApi.expectedError(),
-                PublicApi.idParam()
+                new RequiredParam("email"),
+                new RequiredParam("displayName"),
+                new RequiredParam("password"),
+                new OptionalParam("expectedStatus")
+                        .setAllowedValues(getStatusCodeNamesAsArray())
+                        .setDefault("OK"),
+                new OptionalParam("expectedError")
+                        .setAllowMultipleValues(),
+                new OptionalParam("id")
         );
         final String email = testContext.emailAddresses.resolve(params.value("email"));
         final String displayName = testContext.displayNames.resolve(params.value("displayName"));
@@ -89,10 +92,13 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     public void login(final String... args) {
         final DslParams params = new DslParams(
                 args,
-                PublicApi.emailParam(),
-                PublicApi.passwordParam(),
-                PublicApi.expectedStatusParam().setDefault("SEE_OTHER"),
-                PublicApi.expectedError()
+                new RequiredParam("email"),
+                new RequiredParam("password"),
+                new OptionalParam("expectedStatus")
+                        .setAllowedValues(getStatusCodeNamesAsArray())
+                        .setDefault("SEE_OTHER"),
+                new OptionalParam("expectedError")
+                        .setAllowMultipleValues()
         );
 
         final String email = testContext.emailAddresses.resolve(params.value("email"));
@@ -119,8 +125,11 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
                 new RequiredParam("user"),
                 new OptionalParam("email"),
                 new OptionalParam("displayName"),
-                PublicApi.expectedStatusParam(),
-                PublicApi.expectedError(),
+                new OptionalParam("expectedStatus")
+                        .setAllowedValues(getStatusCodeNamesAsArray())
+                        .setDefault("OK"),
+                new OptionalParam("expectedError")
+                        .setAllowMultipleValues(),
                 new OptionalParam("createdDate"),
                 new OptionalParam("modifiedDate"),
                 new OptionalParam("deletedDate"),
@@ -211,8 +220,11 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
                 new OptionalParam("email"),
                 new OptionalParam("displayName"),
                 new OptionalParam("password"),
-                PublicApi.expectedStatusParam().setDefault("NO_CONTENT"),
-                PublicApi.expectedError()
+                new OptionalParam("expectedStatus")
+                        .setAllowedValues(getStatusCodeNamesAsArray())
+                        .setDefault("NO_CONTENT"),
+                new OptionalParam("expectedError")
+                        .setAllowMultipleValues()
         );
 
         final String userEmail = testContext.emailAddresses.resolve(params.value("user"));
@@ -275,8 +287,11 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     public void refreshToken(final String... args) {
         final DslParams params = new DslParams(
                 args,
-                PublicApi.expectedStatusParam().setDefault("NO_CONTENT"),
-                PublicApi.expectedError()
+                new OptionalParam("expectedStatus")
+                        .setAllowedValues(getStatusCodeNamesAsArray())
+                        .setDefault("NO_CONTENT"),
+                new OptionalParam("expectedError")
+                        .setAllowMultipleValues()
         );
 
         final int expectedStatus = getStatusCode(params.value("expectedStatus"));
@@ -293,11 +308,14 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     public void changePassword(final String... args) {
         final DslParams params = new DslParams(
                 args,
-                PublicApi.emailParam(),
+                new RequiredParam("email"),
                 new RequiredParam("oldPassword"),
                 new RequiredParam("newPassword"),
-                PublicApi.expectedStatusParam().setDefault("NO_CONTENT"),
-                PublicApi.expectedError()
+                new OptionalParam("expectedStatus")
+                        .setAllowedValues(getStatusCodeNamesAsArray())
+                        .setDefault("NO_CONTENT"),
+                new OptionalParam("expectedError")
+                        .setAllowMultipleValues()
         );
         final String email = testContext.emailAddresses.resolve(params.value("email"));
         final String oldPassword = testContext.passwords.resolve(params.value("oldPassword"));
@@ -327,7 +345,7 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
     public void ensureUserIdDoesNotMatch(final String... args) {
         final DslParams params = new DslParams(
                 args,
-                PublicApi.idParam()
+                new OptionalParam("id")
         );
 
         final String id = params.value("id");
@@ -351,37 +369,13 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
         assertEquals(expectedErrorsSet, actualErrorsSet);
     }
 
-    private static RequiredParam emailParam() {
-        return new RequiredParam("email");
-    }
-
-    private static RequiredParam displayNameParam() {
-        return new RequiredParam("displayName");
-    }
-
-    private static RequiredParam passwordParam() {
-        return new RequiredParam("password");
-    }
-
-    private static OptionalParam expectedStatusParam() {
-        return new OptionalParam("expectedStatus")
-                .setAllowedValues(getStatusCodes().keySet().toArray(new String[0]))
-                .setDefault("OK");
-    }
-
-    private static OptionalParam expectedError() {
-        return new OptionalParam("expectedError")
-                .setAllowMultipleValues();
-    }
-
-    private static OptionalParam idParam() {
-        return new OptionalParam("id");
-    }
-
     private static Map<String, Integer> getStatusCodes() {
         //CHECKSTYLE.OFF: InnerAssignment
         return statusCodes = Lazily.create(statusCodes, PublicApi::buildStatusCodes);
         //CHECKSTYLE.ON: InnerAssignment
+    }
+    private static String[] getStatusCodeNamesAsArray() {
+        return getStatusCodes().keySet().stream().toArray(String[]::new);
     }
 
     private static Map<String, Integer> buildStatusCodes() {
