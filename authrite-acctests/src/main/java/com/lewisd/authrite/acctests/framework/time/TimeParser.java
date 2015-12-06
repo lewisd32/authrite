@@ -41,7 +41,7 @@ public class TimeParser {
 
             final String alias = tokenList.removeFirst();
 
-            final Date date = dates.getTime(alias);
+            final Date date = dates.resolve(alias);
             if (date == null) {
                 throw new IllegalArgumentException("No date named '" + alias + "' found for " + fieldName);
             }
@@ -60,7 +60,7 @@ public class TimeParser {
         }
 
         final String alias = tokenList.removeFirst();
-        final Date date = dates.getTime(alias);
+        final Date date = dates.resolve(alias);
         if (date == null) {
             throw new IllegalArgumentException("No date named '" + alias + "' found for " + fieldName);
         }

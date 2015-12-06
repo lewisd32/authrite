@@ -1,27 +1,20 @@
 package com.lewisd.authrite.acctests.framework.context;
 
-import com.google.common.annotations.VisibleForTesting;
+import io.github.unacceptable.alias.AliasStore;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-public class DateStore {
-    private final Map<String, Date> recordedTimes = new HashMap<>();
+public class DateStore extends AliasStore<Date> {
 
-    public void recordTime(final String alias) {
-        recordedTimes.put(alias, new Date());
+    public DateStore() {
+        super(new DateGenerator()::generate);
     }
 
-    public Date getTime(final String alias) {
-        if ("now".equalsIgnoreCase(alias)) {
+    @Override
+    public Date resolve(final String alias) {
+        if ("now".equals(alias)) {
             return new Date();
         }
-        return recordedTimes.get(alias);
-    }
-
-    @VisibleForTesting
-    public void storeTime(final String alias, final Date date) {
-        recordedTimes.put(alias, date);
+        return super.resolve(alias);
     }
 }
