@@ -58,7 +58,7 @@ public class DslTestCase {
         // by calling this twice too closely.
         sleep(padding);
 
-        testContext.dates.recordTime(alias);
+        testContext.dates.resolve(alias);
 
         sleep(padding);
     }

@@ -18,7 +18,6 @@ import com.lewisd.authrite.errors.APIError;
 import com.lmax.simpledsl.DslParams;
 import com.lmax.simpledsl.OptionalParam;
 import com.lmax.simpledsl.RequiredParam;
-import io.github.unacceptable.alias.AliasStore;
 import io.github.unacceptable.dsl.SimpleDsl;
 import io.github.unacceptable.lazy.Lazily;
 import org.apache.http.HttpStatus;
@@ -39,6 +38,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static io.github.unacceptable.alias.AbsentWrappingGenerator.ABSENT;
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.*;
 
@@ -256,8 +256,8 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
 
         final String expiry;
         if (params.hasValue("expiry")) {
-            if (AliasStore.ABSENT.equals(params.value("expiry"))) {
-                expiry = AliasStore.ABSENT;
+            if (ABSENT.equals(params.value("expiry"))) {
+                expiry = ABSENT;
             } else {
                 final String description = params.value("expiry");
                 final Date expiryDate = new TimeParser(testContext.dates, "expiry").parse(description);
@@ -271,14 +271,14 @@ public class PublicApi extends SimpleDsl<PublicApiDriver, TestContext> {
 
         driver().regenerateToken(
                 params.value("secret"),
-                AliasStore.ABSENT.equals(params.value("id"))
-                        ? AliasStore.ABSENT
+                ABSENT.equals(params.value("id"))
+                        ? ABSENT
                         : params.value("id"),
-                AliasStore.ABSENT.equals(params.value("email"))
-                        ? AliasStore.ABSENT
+                ABSENT.equals(params.value("email"))
+                        ? ABSENT
                         : testContext.emailAddresses.resolve(params.value("email")),
-                AliasStore.ABSENT.equals(params.value("displayName"))
-                        ? AliasStore.ABSENT
+                ABSENT.equals(params.value("displayName"))
+                        ? ABSENT
                         : testContext.displayNames.resolve(params.value("displayName")),
                 expiry
         );

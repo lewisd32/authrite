@@ -22,9 +22,9 @@ import java.util.UUID;
 public class TestContext {
     public static final String ADMIN_EMAIL = "admin@lewisd.com";
     public static final String ADMIN_DISPLAY_NAME = "Admin";
-    public final AliasStore displayNames = new AliasStore(new UsernameGenerator(20)::generate);
-    public final AliasStore emailAddresses = new AliasStore(EmailAddressGenerator::defaultGenerate);
-    public final AliasStore passwords = new AliasStore(PasswordGenerator::defaultGenerate);
+    public final AliasStore<String> displayNames = new AliasStore<>(new UsernameGenerator(20)::generate);
+    public final AliasStore<String> emailAddresses = new AliasStore<>(EmailAddressGenerator::defaultGenerate);
+    public final AliasStore<String> passwords = new AliasStore<>(PasswordGenerator::defaultGenerate);
     public final DateStore dates = new DateStore();
 
     private final Map<String, UUID> userIdsByEmail = new HashMap<>();

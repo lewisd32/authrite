@@ -10,7 +10,6 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.lewisd.authrite.auth.JWTConfiguration;
 import com.lewisd.authrite.auth.JwtTokenManager;
-import io.github.unacceptable.alias.AliasStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.github.unacceptable.alias.AbsentWrappingGenerator.ABSENT;
 import static org.junit.Assert.assertNotNull;
 
 public class PublicApiDriver {
@@ -280,7 +280,7 @@ public class PublicApiDriver {
     }
 
     private void addOrRemoveParam(final Map<String, Object> map, final String fieldName, final String value) {
-        if (value.equals(AliasStore.ABSENT)) {
+        if (value.equals(ABSENT)) {
             map.remove(fieldName);
         } else {
             map.put(fieldName, value);
