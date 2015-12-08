@@ -61,7 +61,17 @@
     </dependency>
     <dependency>
       <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-dropwizard</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.unacceptable</groupId>
       <artifactId>unacceptable-database</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-liquibase</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -99,7 +109,7 @@
             <include>**/*Test.java</include>
           </includes>
           <systemPropertyVariables>
-            <acctest.baseuri>http://localhost:8080/</acctest.baseuri>
+            <app.url>http://localhost:8080/</app.url>
           </systemPropertyVariables>
         </configuration>
         <executions>

@@ -1,6 +1,7 @@
 package com.lewisd.authrite.acctests.framework.database;
 
 import io.github.unacceptable.database.DatabaseContext;
+import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
 
 public class H2DatabaseContext extends DatabaseContext {
@@ -11,16 +12,6 @@ public class H2DatabaseContext extends DatabaseContext {
     }
 
     @Override
-    public TestRule rules() {
-        // Don't chain because we don't need the TemporaryDatabaseRule for H2.
-        return makeMigrationRule();
-    }
-
-    private MigrateDatabaseRule makeMigrationRule() {
-        return new MigrateDatabaseRule(databaseUrl(), username(), password());
-    }
-
-    @Override
     protected String defaultPassword() {
         return "sa";
     }
@@ -28,5 +19,14 @@ public class H2DatabaseContext extends DatabaseContext {
     @Override
     protected String defaultUsername() {
         return "sa";
+    }
+
+    @Override
+    protected TestRule constructRules() {
+        // Disable the default rule that creates a temporary database since H2 does it automatically.
+        return new NoOpRule();
+    }
+
+    private class NoOpRule extends ExternalResource {
     }
 }
