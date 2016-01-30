@@ -61,7 +61,17 @@
     </dependency>
     <dependency>
       <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-dropwizard</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.unacceptable</groupId>
       <artifactId>unacceptable-database</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.github.unacceptable</groupId>
+      <artifactId>unacceptable-liquibase</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
